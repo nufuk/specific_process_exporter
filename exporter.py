@@ -1,8 +1,18 @@
 #!./venv/bin/python
 import time
 import psutil
-import pprint
+import configparser
+import json
 from prometheus_client import start_http_server, Gauge, REGISTRY, PROCESS_COLLECTOR, PLATFORM_COLLECTOR
+
+# TODO 
+# prozessnamen aus einem Configfile beziehen, port (logging pfad?), sleeptime
+# ordentliche prozess signals wenn das skript beendet wird
+# README.MD mit Anleitung
+# install.sh um systemctl eintrag erweitern
+# gitignore falls nötig erweitern
+# Mehr Kommentare
+
 
 # Standard-Metriken (CPU/Memory des Exporters selbst) entfernen, falls nicht benötigt
 [REGISTRY.unregister(c) for c in [PROCESS_COLLECTOR, PLATFORM_COLLECTOR] if c in REGISTRY._collector_to_names]
@@ -33,10 +43,15 @@ def collect_metrics(process_list):
 
 
 if __name__ == '__main__':
-    # Starte den Exporter auf Port 9009
-    start_http_server(9009)
-    print("Prometheus Exporter läuft auf http://localhost:9009/metrics")
-    process_list = ["firefox", "python", "none"]
+    config = configparser.ConfigParser()
+    config.read('./config')
+    # Starte den Exporter auf dem Port aus der Config
+    port = int(config['DEFAULT']['PORT'])
+    process_list = json.loads(config.get("DEFAULT","PROCESSES"))
+    sleeptimer = int(config['DEFAULT']['SLEEPTIMER'])
+
+    start_http_server(port)
+    print(process_list)
     while True:
         collect_metrics(process_list)
-        time.sleep(60)  # Aktualisierungsintervall
+        time.sleep(sleeptimer)  # Aktualisierungsintervall

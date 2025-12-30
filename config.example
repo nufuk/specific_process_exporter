@@ -1,0 +1,13 @@
+[DEFAULT]
+# Port on which the exporter will be exposed
+PORT=9000
+# List of processnames to check
+PROCESSES=[
+     "example1",
+     "example2.sh"
+    ]
+# in seconds
+SLEEPTIMER=5
+
+[LOGGING]
+#TODO
